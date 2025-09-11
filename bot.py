@@ -1,6 +1,5 @@
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler, ContextTypes
-from telegram.ext import CallbackQueryHandler
 import psycopg2
 import os
 from dotenv import load_dotenv
@@ -19,11 +18,80 @@ DB_CONFIG = {
 def get_db_connection():
     return psycopg2.connect(**DB_CONFIG)
 
-(FULL_NAME, USERNAME, GROUP, LEVEL, LANGUAGES, MOTIVATION, EXPERIENCE) = range(7)
+(MENU, FULL_NAME, USERNAME, GROUP, LEVEL, LANGUAGES, MOTIVATION, EXPERIENCE) = range(8)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Привет! Давай заполним твою заявку.\nНапиши свое ФИО:")
-    return FULL_NAME
+    keyboard = [["Информация о школе"], ["Заполнить заявку"], ["Выйти"]]
+    await update.message.reply_text(
+        "Привет! Это бот по приему заявок на участие в проекте SCP School.\n"
+        "Выбери действие:",
+        reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    )
+    return MENU
+
+async def menu_choice(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    choice = update.message.text
+
+    if choice == "Информация о школе":
+        keyboard = [["Назад"]]
+        info_text = (
+            "🚀 SCP School — стань частью образовательного движения!\n"
+            "🌍 Миссия\n\n"
+            "SCP School — это больше, чем школа программирования. Это проект, который меняет жизни. "
+            "Мы даём подросткам из социально уязвимых слоёв шанс войти в мир IT: пройти путь от первых строк кода "
+            "до уверенной разработки собственных приложений.\n"
+            "Каждый урок — это маленький шаг к большим мечтам.\n\n"
+            "📚 Как устроено обучение\n\n"
+            "1) Обучение строится на трёхлетней программе: от основ до уверенного уровня программиста.\n\n"
+            "2) Каждый год разделён на 4 триместра — осенний, зимний, весенний и летний.\n\n"
+            "3) Каждый триместр приходят новые группы школьников: кто-то делает первый шаг в IT, а кто-то продолжает свой путь.\n\n"
+            "4) Занятия проходят офлайн по субботам, 1,5 часа (40 мин теория + 40 мин практика).\n\n"
+            "5) В каждой группе — до 10 школьников и 2 преподавателя, чтобы каждому уделить внимание.\n\n"
+            "6) Каждую неделю ученики получают домашние задания, а преподаватели сопровождают их и поддерживают онлайн.\n\n"
+            "👩‍🏫 Роль преподавателя\n\n"
+            "Ты не просто объясняешь код — ты вдохновляешь.\n"
+            "Преподаватель в SCP School — это наставник, который помогает школьникам поверить в себя и увидеть, "
+            "что IT — это не сухая теория, а живые проекты и свобода идей.\n\n"
+            "🎁 Что ты получишь\n\n"
+            "1) ✅ Закроешь университетскую практику (достаточно одного триместра).\n\n"
+            "2) 📈 Получишь + к социальному и научному GPA.\n\n"
+            "3) 🎓 Сертификат от AITU с указанием часов преподавания.\n\n"
+            "4) 🗣 Прокачаешь навыки коммуникации, работы в команде и лидерства.\n\n"
+            "5) 💡 Ценный опыт преподавания, который оценят работодатели.\n\n"
+            "6) ❤️ Главное — почувствуешь, что ты реально меняешь чью-то жизнь.\n\n"
+            "💡 Кого мы ищем\n\n"
+            "1) Студентов, готовых преподавать frontend и backend разработку.\n\n"
+            "2) Тех, кто умеет говорить простыми словами о сложных вещах.\n\n"
+            "3) Людей, которым важно развитие других так же, как и собственное.\n\n"
+            "4) И особенно ценится опыт работы с детьми — он помогает лучше понимать учеников и находить с ними общий язык."
+        )
+
+        await update.message.reply_text(
+            info_text,
+            reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+        )
+        return MENU
+
+    elif choice == "Заполнить заявку":
+        await update.message.reply_text("Отправь свое ФИО:")
+        return FULL_NAME
+
+    elif choice == "Назад":
+        keyboard = [["Информация о школе"], ["Заполнить заявку"], ["Выйти"]]
+        await update.message.reply_text(
+            "Ты вернулся в меню.\nВыбери действие:",
+            reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+        )
+        return MENU
+
+    elif choice == "Выйти":
+        await update.message.reply_text("Ты вышел из бота. Чтобы вернуться - пропиши /start",
+                                        reply_markup=ReplyKeyboardRemove())
+        return ConversationHandler.END
+
+    else:
+        await update.message.reply_text("Пожалуйста, выбери действие из меню.")
+        return MENU
 
 async def full_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["full_name"] = update.message.text
@@ -37,11 +105,10 @@ async def username(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def group(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["group_number"] = update.message.text
-
     keyboard = [["Основы"], ["Уверенный уровень"], ["Проходил стажировки / работал в сфере"]]
     await update.message.reply_text(
         "Выбери уровень владения программированием:",
-        reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True)
+        reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
     )
     return LEVEL
 
@@ -91,7 +158,13 @@ async def experience(update: Update, context: ContextTypes.DEFAULT_TYPE):
     conn.close()
 
     await update.message.reply_text("Спасибо! Твоя заявка была принята.")
-    return ConversationHandler.END
+
+    keyboard = [["Информация о школе"], ["Заполнить заявку"], ["Выйти"]]
+    await update.message.reply_text(
+        "Ты снова в меню. Выбери действие:",
+        reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    )
+    return MENU
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Заявка отменена.")
@@ -103,6 +176,7 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
         states={
+            MENU: [MessageHandler(filters.TEXT & ~filters.COMMAND, menu_choice)],
             FULL_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, full_name)],
             USERNAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, username)],
             GROUP: [MessageHandler(filters.TEXT & ~filters.COMMAND, group)],
