@@ -21,9 +21,10 @@ def get_db_connection():
 (MENU, FULL_NAME, USERNAME, GROUP, LEVEL, LANGUAGES, MOTIVATION, EXPERIENCE) = range(8)
 
 async def exit_conversation(update: Update):
-    await update.message.reply_text("Ты вышел из заполнения анкеты. Чтобы снова запустить бота - напиши /start", reply_markup=ReplyKeyboardRemove()
+    keyboard = [["Информация о школе"], ["Заполнить заявку"], ["Выйти"]]
+    await update.message.reply_text("Ты вышел из заполнения анкеты. Выбери действие:", reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
                                     )
-    return ConversationHandler.END
+    return MENU
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [["Информация о школе"], ["Заполнить заявку"], ["Выйти"]]
@@ -89,7 +90,12 @@ async def menu_choice(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return MENU
 
     elif choice == "Выйти":
-        return await exit_conversation(update)
+        await update.message.reply_text(
+            "Ты вышел из бота. Чтобы снова его запустить - напиши /start",
+            reply_markup=ReplyKeyboardRemove(),
+        )
+
+        return ConversationHandler.END
 
     else:
         await update.message.reply_text("Пожалуйста, выбери действие из меню.")
@@ -97,29 +103,29 @@ async def menu_choice(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def full_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message.text == "Выйти":
+    if update.message.text == "Отмена":
         return await exit_conversation(update)
 
     context.user_data["full_name"] = update.message.text
-    keyboard =[["Выйти"]]
+    keyboard =[["Отмена"]]
     await update.message.reply_text("Отлично! Теперь напиши свой Telegram username (без @):", reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
     return USERNAME
 
 async def username(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message.text == "Выйти":
+    if update.message.text == "Отмена":
         return await exit_conversation(update)
 
     context.user_data["username"] = update.message.text
-    keyboard =[["Выйти"]]
+    keyboard =[["Отмена"]]
     await update.message.reply_text("Напиши номер своей группы:", reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
     return GROUP
 
 async def group(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message.text == "Выйти":
+    if update.message.text == "Отмена":
         return await exit_conversation(update)
 
     context.user_data["group_number"] = update.message.text
-    keyboard = [["Основы"], ["Уверенный уровень"], ["Проходил стажировки / работал в сфере"], ["Выйти"]]
+    keyboard = [["Основы"], ["Уверенный уровень"], ["Проходил стажировки / работал в сфере"], ["Отмена"]]
     await update.message.reply_text(
         "Выбери уровень владения программированием:",
         reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
@@ -127,36 +133,33 @@ async def group(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return LEVEL
 
 async def level(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message.text == "Выйти":
+    if update.message.text == "Отмена":
         return await exit_conversation(update)
 
     context.user_data["programming_level"] = update.message.text
-    keyboard =[["Выйти"]]
+    keyboard =[["Отмена"]]
     await update.message.reply_text("Какие языки программирования ты знаешь?", reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
     return LANGUAGES
 
 async def languages(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message.text == "Выйти":
+    if update.message.text == "Отмена":
         return await exit_conversation(update)
 
     context.user_data["known_languages"] = update.message.text
-    keyboard =[["Выйти"]]
+    keyboard =[["Отмена"]]
     await update.message.reply_text("Почему ты хочешь участвовать в проекте SCP School?", reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
     return MOTIVATION
 
 async def motivation(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message.text == "Выйти":
+    if update.message.text == "Отмена":
         return await exit_conversation(update)
 
     context.user_data["motivation"] = update.message.text
-    keyboard =[["Выйти"]]
+    keyboard =[["Отмена"]]
     await update.message.reply_text("Есть ли у тебя опыт работы с детьми или преподавания?", reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
     return EXPERIENCE
 
 async def experience(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message.text == "Выйти":
-        return await exit_conversation(update)
-
     context.user_data["teaching_experience"] = update.message.text
 
     user_data = context.user_data
