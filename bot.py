@@ -189,6 +189,7 @@ async def experience(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_data["full_name"],
         user_data["group_number"],
         user_data["programming_level"],
+        user_data["direction"],
         user_data["known_languages"],
         user_data["motivation"],
         user_data["teaching_experience"]
