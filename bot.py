@@ -175,8 +175,8 @@ async def experience(update: Update, context: ContextTypes.DEFAULT_TYPE):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO applications (username, full_name, group_number, programming_level, known_languages, motivation, teaching_experience)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO applications (username, full_name, group_number, programming_level, direction, known_languages, motivation, teaching_experience)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         ON CONFLICT (username) DO UPDATE SET
             full_name = EXCLUDED.full_name,
             group_number = EXCLUDED.group_number,
