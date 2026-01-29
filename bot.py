@@ -207,7 +207,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await exit_conversation(update)
 
 def main():
-    persistence = PicklePersistence(filename="bot_state.pickle")
+    persistence = PicklePersistence(filepath="bot_state.pickle")
 
     application = (Application.builder().token(BOT_TOKEN).persistence(persistence).build())
 
