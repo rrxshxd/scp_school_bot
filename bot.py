@@ -18,7 +18,7 @@ DB_CONFIG = {
 def get_db_connection():
     return psycopg2.connect(**DB_CONFIG)
 
-(MENU, FULL_NAME, USERNAME, GROUP, LEVEL, LANGUAGES, MOTIVATION, EXPERIENCE) = range(8)
+(MENU, FULL_NAME, USERNAME, GROUP, LEVEL, DIRECTION, LANGUAGES, MOTIVATION, EXPERIENCE) = range(8)
 
 async def exit_conversation(update: Update):
     keyboard = [["Информация о школе"], ["Заполнить заявку"], ["Выйти"]]
@@ -136,7 +136,16 @@ async def level(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return await exit_conversation(update)
 
     context.user_data["programming_level"] = update.message.text
-    keyboard =[["Отмена"]]
+    keyboard =[["Frontend"], ["Backend"], ["Отмена"]]
+    await update.message.reply_text("В какой сфере ты бы хотел преподавать?", reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
+    return DIRECTION
+
+async def direction(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.message.text == "Отмена":
+        return await exit_conversation(update)
+
+    context.user_data["direction"] = update.message.text
+    keyboard = [["Отмена"]]
     await update.message.reply_text("Какие языки программирования ты знаешь?", reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
     return LANGUAGES
 
@@ -211,6 +220,7 @@ def main():
             USERNAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, username)],
             GROUP: [MessageHandler(filters.TEXT & ~filters.COMMAND, group)],
             LEVEL: [MessageHandler(filters.TEXT & ~filters.COMMAND, level)],
+            DIRECTION: [MessageHandler(filters.TEXT & ~filters.COMMAND, direction)],
             LANGUAGES: [MessageHandler(filters.TEXT & ~filters.COMMAND, languages)],
             MOTIVATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, motivation)],
             EXPERIENCE: [MessageHandler(filters.TEXT & ~filters.COMMAND, experience)],
