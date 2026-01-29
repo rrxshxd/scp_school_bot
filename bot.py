@@ -1,5 +1,7 @@
+from pickle import PickleError
+
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ConversationHandler, ContextTypes, PicklePersistence
 import psycopg2
 import os
 from dotenv import load_dotenv
@@ -205,7 +207,9 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await exit_conversation(update)
 
 def main():
-    application = Application.builder().token(BOT_TOKEN).build()
+    persistence = PicklePersistence(filename="bot_state.pickle")
+
+    application = (Application.builder().token(BOT_TOKEN).persistence(persistence).build())
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
@@ -220,7 +224,9 @@ def main():
             MOTIVATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, motivation)],
             EXPERIENCE: [MessageHandler(filters.TEXT & ~filters.COMMAND, experience)],
         },
-        fallbacks=[CommandHandler("cancel", cancel)]
+        fallbacks=[CommandHandler("cancel", cancel)],
+        name="scp_conv",
+        persistent=True,
     )
 
     application.add_handler(conv_handler)
