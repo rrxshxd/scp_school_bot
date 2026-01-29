@@ -85,7 +85,7 @@ async def menu_choice(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return FULL_NAME
 
     elif choice == "Назад":
-        keyboard = [["Информация о школе"], ["Заполнить заявку"], ["Выйти"]]
+        keyboard = [["Информация о школе"], ["Заполнить заявку"]]
         await update.message.reply_text(
             "Ты вернулся в меню.\nВыбери действие:",
             reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
@@ -196,7 +196,7 @@ async def experience(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text("Спасибо! Твоя заявка была принята.")
 
-    keyboard = [["Информация о школе"], ["Заполнить заявку"], ["Выйти"]]
+    keyboard = [["Информация о школе"], ["Заполнить заявку"]]
     await update.message.reply_text(
         "Ты снова в меню. Выбери действие:",
         reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
