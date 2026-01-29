@@ -144,7 +144,7 @@ async def direction(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.text == "Отмена":
         return await exit_conversation(update)
 
-    context.user_data["direction"] = update.message.text
+    context.user_data["direction"] = update.message.text.lower()
     keyboard = [["Отмена"]]
     await update.message.reply_text("Какие языки программирования ты знаешь?", reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
     return LANGUAGES
