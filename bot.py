@@ -81,7 +81,8 @@ async def menu_choice(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return MENU
 
     elif choice == "Заполнить заявку":
-        await update.message.reply_text("Напиши свое ФИО:")
+        keyboard = [["Отмена"]]
+        await update.message.reply_text("Напиши свое ФИО:", reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
         return FULL_NAME
 
     elif choice == "Назад":
