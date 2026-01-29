@@ -195,6 +195,7 @@ async def experience(update: Update, context: ContextTypes.DEFAULT_TYPE):
     conn.close()
 
     await update.message.reply_text("Спасибо! Твоя заявка была принята.")
+    context.user_data.clear()
 
     keyboard = [["Информация о школе"], ["Заполнить заявку"]]
     await update.message.reply_text(
@@ -204,15 +205,19 @@ async def experience(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return MENU
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await exit_conversation(update)
+    await exit_conversation(update, context)
 
 def main():
     persistence = PicklePersistence(filepath="bot_state.pickle")
 
     application = (Application.builder().token(BOT_TOKEN).persistence(persistence).build())
 
+    MENU_ENTRY = filters.Regex(r"^(Информация о школе|Заполнить заявку|Назад)$")
+
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler("start", start)],
+        entry_points=[CommandHandler("start", start),
+                      MessageHandler(MENU_ENTRY, start)
+                      ],
         states={
             MENU: [MessageHandler(filters.TEXT & ~filters.COMMAND, menu_choice)],
             FULL_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, full_name)],
