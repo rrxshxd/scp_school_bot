@@ -18,7 +18,7 @@ DB_CONFIG = {
 def get_db_connection():
     return psycopg2.connect(**DB_CONFIG)
 
-(MENU, FULL_NAME, USERNAME, GROUP, LEVEL, DIRECTION, LANGUAGES, MOTIVATION, EXPERIENCE) = range(8)
+(MENU, FULL_NAME, USERNAME, GROUP, LEVEL, DIRECTION, LANGUAGES, MOTIVATION, EXPERIENCE) = range(9)
 
 async def exit_conversation(update: Update):
     keyboard = [["Информация о школе"], ["Заполнить заявку"], ["Выйти"]]
